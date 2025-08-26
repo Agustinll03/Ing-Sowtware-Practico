@@ -1,0 +1,30 @@
+# --- build stage ---
+FROM golang:1.22-alpine AS build
+WORKDIR /src
+
+# Copiar mod/sum para aprovechar caché
+COPY Backend/go.mod Backend/go.sum ./Backend/
+WORKDIR /src/Backend
+RUN go mod download
+
+# Copiar el código
+COPY Backend/ ./
+
+# Compilar binario estático
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /out/app .
+
+# --- run stage ---
+FROM alpine:3.20
+# usuario no-root
+RUN adduser -D -H appuser
+USER appuser
+
+WORKDIR /app
+COPY --from=build /out/app /app/app
+
+# Valores por defecto (se sobreescriben con .env.*)
+ENV PORT=8080 APP_ENV=qa \
+    DB_HOST=db DB_PORT=5432 DB_NAME=appdb DB_USER=appuser DB_PASSWORD=apppass
+
+EXPOSE 8080
+CMD ["/app/app"]

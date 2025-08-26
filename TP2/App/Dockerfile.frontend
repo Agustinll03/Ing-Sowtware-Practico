@@ -1,0 +1,13 @@
+# --- build stage ---
+FROM node:20-slim AS build
+WORKDIR /app
+COPY Frontend/package*.json ./
+RUN npm ci
+COPY Frontend/ ./
+RUN npm run build   # Vite/CRA generan dist o build
+
+# --- run stage ---
+FROM nginx:stable-alpine
+# Copiar estáticos (Vite = dist; si CRA usa 'build', cambiá aquí)
+COPY --from=build /app/dist/ /usr/share/nginx/html
+EXPOSE 80
