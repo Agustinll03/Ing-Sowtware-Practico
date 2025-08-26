@@ -1,51 +1,44 @@
-# Decisiones TP1 – Flujo de trabajo con Git
+# Decisiones TP1 – Git Básico
 
-## 1) Preparación del repo
-- Partí del repo base `ingsoft3ucc/2025_TP01_RepoBase` y configuré mi identidad con `user.name` y `user.email`.
-- Agregué remoto `upstream` para poder referenciar el origen del trabajo.
+## 1. Flujo de trabajo usado
+Utilicé un flujo basado en **Git Flow simplificado**:
+- `main`: rama estable de producción.
+- `feat/*`: ramas de funcionalidad (en mi caso `feat/saludo-personalizado`).
+- `hotfix/*`: ramas de corrección urgente (`hotfix/arreglar-saludo`).
 
-**Alternativa:** trabajar directo en `main`.  
-**Por qué NO:** mezcla desarrollo con producción, pierde trazabilidad.
+**Por qué**: separa el desarrollo de nuevas features del código estable y permite aplicar fixes críticos directamente en `main`.
 
-## 2) Desarrollo de funcionalidad
-- Rama: `feat/saludo-personalizado`.
-- Commits atómicos:
-  1. `feat(saludo): prefijo configurable via env SALUDO_PREFIX`
-  2. `docs(readme): documentar uso de SALUDO_PREFIX`
+**Alternativa**: trabajar siempre en `main`.  
+**Por qué no**: perdería trazabilidad, mezclaría cambios en desarrollo con producción y dificultaría la revisión.
 
-**Estrategia:** separar la implementación del cambio de la documentación para poder revertir/iterar de forma independiente.
+---
 
-**Alternativas:** un solo commit grande.  
-**Por qué NO:** cuesta revisar, revertir y auditar.
+## 2. Integración del fix
+El fix se aplicó en una rama `hotfix/arreglar-saludo`.  
+Pasos:
+1. Detectar bug en `main` y crear la rama hotfix.  
+2. Corregir el error y commitear.  
+3. Integrar a `main` con un **merge sin fast-forward** para que quede registro explícito del hotfix.  
+4. Aplicar también a la rama de desarrollo (`feat/saludo-personalizado`) mediante **cherry-pick**, para mantener ambas ramas coherentes.
 
-## 3) Corrección de error (hotfix)
-- Simulé un bug en `main` (saludo mal escrito).
-- Creé `hotfix/arreglar-saludo`, hice el fix, lo integré a `main` con merge sin fast-forward y luego a la rama de desarrollo con `cherry-pick`.
+**Por qué esta estrategia**:  
+- El merge deja historial claro en `main`.  
+- El cherry-pick evita traer commits no deseados de `main` a la rama feature.
 
-**Por qué:** el hotfix debe llegar primero a producción y después sincronizarse con la rama de trabajo sin mezclar otros cambios.
+---
 
-**Alternativas:**
-- Merge de `main` → `feat/*`.  
-  **Contras:** trae también commits ajenos al fix.
-- Rehacer el fix a mano en `feat/*`.  
-  **Contras:** duplica trabajo y arriesga inconsistencias.
+## 3. Problemas y soluciones
+- **Simulación de bug en `main`**: al modificar manualmente el código, me aseguré de revertirlo en el hotfix.  
+- **Confusión con integración**: evalué usar `merge main → feature`, pero habría traído commits innecesarios; lo resolví con `cherry-pick` del fix.  
+- **Posibles conflictos**: no aparecieron, pero si ocurren la estrategia sería resolverlos manualmente y documentarlos en el commit.
 
-## 4) Pull Request
-- Abrí un PR `feat/saludo-personalizado → main` y lo fusioné.  
-- Justificación: revisión, trazabilidad y registro formal del cambio.
+---
 
-**Alternativa:** push directo a `main`.  
-**Por qué NO:** sin revisión ni historial de decisión.
+## 4. Calidad y trazabilidad en un equipo real
+- **Commits atómicos y claros**, siguiendo convención tipo Conventional Commits (`feat:`, `fix:`, `docs:`).  
+- **Pull Requests obligatorios** para revisión por pares antes de fusionar a `main`.  
+- **Tags semánticos** para versiones (`v1.0`, `v1.1.0`).  
+- **CI/CD** automatizado: ejecutar tests en cada PR, verificar builds y publicar releases automáticamente.  
+- **Ramas protegidas**: evitar pushes directos a `main`, solo merges aprobados.  
 
-## 5) Versión etiquetada
-- Tag: `v1.0` en `main` después de integrar la feature y el hotfix.  
-- Convención: SemVer simplificado (mayor.menor.parche), empezando por `v1.0` (primera release estable).
-
-**Alternativa:** fechas en tags (ej. `2025-08-26`).  
-**Por qué NO:** menos expresivo respecto a compatibilidad.
-
-## 6) Trazabilidad y calidad (cómo lo haría en equipo)
-- Ramas por feature/hotfix, commits atómicos con convención de mensajes.
-- PRs obligatorios, CI con tests/lint y reglas de protección sobre `main`.
-- Tags por release y changelog.
-
+Esto asegura que cada cambio sea trazable, auditable y verificable antes de llegar a producción.
