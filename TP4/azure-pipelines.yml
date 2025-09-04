@@ -1,0 +1,63 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  name: SelfHosted  
+
+variables:
+  NODE_VERSION: '20.x'
+  GO_VERSION: '1.22'
+
+stages:
+- stage: CI
+  displayName: CI Front + Back
+  jobs:
+
+  - job: Build_Front
+    displayName: Build Front (React + Vite)
+    steps:
+    - checkout: self
+
+    - task: NodeTool@0
+      displayName: "Usar Node $(NODE_VERSION)"
+      inputs:
+        versionSpec: '$(NODE_VERSION)'
+
+    - script: |
+        cd front
+        npm ci
+        npm run build
+      displayName: "npm ci && npm run build"
+
+    - task: PublishPipelineArtifact@1
+      displayName: "Publicar artefacto front-dist"
+      inputs:
+        targetPath: 'front/dist'
+        artifact: 'front-dist'
+        publishLocation: 'pipeline'
+
+  - job: Build_Back
+    displayName: Build Back (Go)
+    dependsOn: Build_Front
+    steps:
+    - checkout: self
+
+    - task: GoTool@0
+      displayName: "Instalar Go $(GO_VERSION)"
+      inputs:
+        version: '$(GO_VERSION)'
+
+    - script: |
+        cd back
+        go version
+        go build -o out/app .
+      displayName: "go build"
+
+    - task: PublishPipelineArtifact@1
+      displayName: "Publicar artefacto back-bin"
+      inputs:
+        targetPath: 'back/out'
+        artifact: 'back-bin'
+        publishLocation: 'pipeline'

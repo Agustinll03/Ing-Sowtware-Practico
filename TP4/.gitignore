@@ -1,0 +1,13 @@
+# Node
+front/node_modules
+front/dist
+
+# Go
+back/bin
+back/out
+
+# macOS
+.DS_Store
+
+# Azure Pipelines
+**/_work
