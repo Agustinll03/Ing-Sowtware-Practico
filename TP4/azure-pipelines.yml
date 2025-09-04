@@ -8,13 +8,14 @@ pool:
 
 variables:
   NODE_VERSION: '20.x'
-  GO_VERSION: '1.22'
+  GO_VERSION: '1.22.6'
 
 stages:
 - stage: CI
   displayName: CI Front + Back
   jobs:
 
+  # Build del Frontend (React + Vite)
   - job: Build_Front
     displayName: Build Front (React + Vite)
     steps:
@@ -38,20 +39,30 @@ stages:
         artifact: 'front-dist'
         publishLocation: 'pipeline'
 
+  # Build del Backend (Go)
   - job: Build_Back
     displayName: Build Back (Go)
     dependsOn: Build_Front
     steps:
     - checkout: self
 
-    - task: GoTool@0
-      displayName: "Instalar Go $(GO_VERSION)"
-      inputs:
-        version: '$(GO_VERSION)'
-
+    # Instalar Go manualmente
     - script: |
+        echo "Instalando Go $(GO_VERSION)…"
+        curl -sSL "https://go.dev/dl/go$(GO_VERSION).darwin-arm64.tar.gz" -o go.tar.gz
+        sudo rm -rf /usr/local/go
+        sudo tar -C /usr/local -xzf go.tar.gz
+        export PATH="/usr/local/go/bin:$PATH"
+        go version
+      displayName: "Instalar Go $(GO_VERSION)"
+
+    # Compilar backend
+    - script: |
+        export PATH="/usr/local/go/bin:$PATH"
         cd back
         go version
+        go mod download
+        mkdir -p out
         go build -o out/app .
       displayName: "go build"
 
