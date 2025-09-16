@@ -6,7 +6,7 @@
 
 ---
 
-## 🏗️ 1. Construir las imágenes
+## Construir las imágenes
 Ejecutar desde la raíz del proyecto:
 
 ```bash
@@ -21,7 +21,7 @@ docker tag agus12345/go-api:dev    agus12345/go-api:v1.0
 docker tag agus12345/react-web:dev agus12345/react-web:v1.0
 
 
-##🚀 2. Ejecutar los contenedores
+## Ejecutar los contenedores
 docker compose up -d
 docker compose ps
 ##Servicios y puertos:
@@ -31,7 +31,7 @@ docker compose ps
 
 
 
-##🌐 3. Acceder a la aplicación
+## Acceder a la aplicación
 	•	QA: http://localhost:8000
 	•	PROD: http://localhost:8001
 
@@ -40,7 +40,7 @@ curl http://localhost:8000/api/health   # QA
 curl http://localhost:8001/api/health   # PROD
 
 
-##🗄️ 4. Conectarse a la base de datos
+## Conectarse a la base de datos
 
 Credenciales (definidas en docker-compose.yml / .env.*):
 	•	Host: localhost
@@ -56,7 +56,7 @@ Desde dentro del contenedor:
 docker exec -it $(docker compose ps -q db) psql -U appuser -d appdb
 
 
-##✅ 5. Verificar funcionamiento
+## Verificar funcionamiento
 
 5.1 Salud
 curl -i http://localhost:8000/api/health
@@ -82,6 +82,6 @@ curl -i http://localhost:8000/api/items   # los datos siguen presentes
 
 
 
-##📦 6. Imágenes en Docker Hub
+## Imágenes en Docker Hub
 	•	Backend → agus12345/go-api:{dev,v1.0}
 	•	Frontend → agus12345/react-web:{dev,v1.0}
